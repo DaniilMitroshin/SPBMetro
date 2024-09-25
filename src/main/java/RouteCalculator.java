@@ -24,13 +24,13 @@ public class RouteCalculator
             return route;
         }
 
-        route = getRouteWithOneConnection(from, to);
-        if(route != null) {
-            return route;
+        List<Station> route2 = getRouteWithOneConnection(from, to);
+        if(route2 != null) {
+            return route2;
         }
 
-        route = getRouteWithTwoConnections(from, to);
-        return route;
+        List<Station> route3 = getRouteWithTwoConnections(from, to);
+        return route3;
     }
 
     public static double calculateDuration(List<Station> route)

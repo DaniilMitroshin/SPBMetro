@@ -1,5 +1,7 @@
 import core.Line;
 import core.Station;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -14,9 +16,10 @@ public class Main
 {
     private static String dataFile = "src/main/resources/map.json";
     private static Scanner scanner;
-
     private static StationIndex stationIndex;
-
+    private static final Logger searchLogger = LogManager.getLogger("SearchLogger");
+    private static final Logger inputErrorLogger = LogManager.getLogger("InputErrorLogger");
+    private static final Logger exceptionLogger = LogManager.getLogger("ExceptionLogger");
     public static void main(String[] args)
     {
         RouteCalculator calculator = getRouteCalculator();
@@ -25,17 +28,22 @@ public class Main
         scanner = new Scanner(System.in);
         for(;;)
         {
-            Station from = takeStation("Введите станцию отправления:");
-            Station to = takeStation("Введите станцию назначения:");
+            try {
+                Station from = takeStation("Введите станцию отправления:");
+                Station to = takeStation("Введите станцию назначения:");
 
-            List<Station> route = calculator.getShortestRoute(from, to);
-            System.out.println("Маршрут:");
-            printRoute(route);
+                List<Station> route = calculator.getShortestRoute(from, to);
+                System.out.println("Маршрут:");
+                printRoute(route);
 
-            System.out.println("Длительность: " +
-                RouteCalculator.calculateDuration(route) + " минут");
+                System.out.println("Длительность: " +
+                        RouteCalculator.calculateDuration(route) + " минут");
+            }catch(Exception e){
+                exceptionLogger.error(e.getMessage());
+            }
         }
     }
+
 
     private static RouteCalculator getRouteCalculator()
     {
@@ -70,9 +78,14 @@ public class Main
             System.out.println(message);
             String line = scanner.nextLine().trim();
             Station station = stationIndex.getStation(line);
+            if (line.equals("Чернышевская")){
+                throw new IllegalArgumentException("Чернышевская закрыта на ремонт");
+            }
             if(station != null) {
+                searchLogger.info("Станция найдена: " + line);
                 return station;
             }
+            inputErrorLogger.warn("Такой станции не существует: " + line);
             System.out.println("Станция не найдена :(");
         }
     }

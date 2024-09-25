@@ -9,7 +9,7 @@ public class Station implements Comparable<Station>
     {
         this.name = name;
         this.line = line;
-        this.line.addStation(this);
+        //line.addStation(this);
     }
 
     public Line getLine()
